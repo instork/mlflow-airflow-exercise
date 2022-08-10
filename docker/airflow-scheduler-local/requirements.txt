@@ -1,0 +1,4 @@
+pymongo == 4.1.1
+python-dotenv == 0.20.0
+googlenews == 1.6.4                    
+fredapi == 0.4.3
