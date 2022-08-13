@@ -16,8 +16,8 @@
     ```
 - Create airflow.env like below to set an account
     ```
-    AIRFLOW_USER=<AIRFLOW_USER>
-    AIRFLOW_PWD=<AIRFLOW_PWD>
+    _AIRFLOW_WWW_USER_USERNAME=<AIRFLOW_USER>
+    _AIRFLOW_WWW_USER_PASSWORD=<AIRFLOW_PWD>
     ```
 
 

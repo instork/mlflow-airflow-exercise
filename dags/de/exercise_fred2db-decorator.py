@@ -11,7 +11,7 @@ INDEX_UNIQUE = False
 
 
 @dag(
-    dag_id="fred2db-decorator",
+    dag_id="example-fred2db-decorator",
     description="Get fred data and news and load on MongoDB",
     start_date=dt.datetime(2020, 1, 1, 0, 0, tzinfo=ETZ),
     schedule_interval=SCHEDULE_INTERVAL,

@@ -1,14 +1,8 @@
-ARG AIRFLOW_BASE_IMAGE="apache/airflow:2.3.3-python3.9"
-FROM ${AIRFLOW_BASE_IMAGE}
+FROM apache/airflow:2.3.3-python3.9
 
 COPY mongo.env /tmp/mongo.env
 COPY fred.env /tmp/fred.env
 
 COPY requirements.txt /tmp/requirements.txt
-RUN pip install -r /tmp/requirements.txt
-
-USER root
-RUN mkdir -p /data && chown airflow /data
-RUN mkdir -p /mlflow && chown airflow /mlflow
-
-USER airflow
+RUN pip install --user --upgrade pip
+RUN pip install --no-cache-dir --user -r /tmp/requirements.txt

@@ -1,87 +1,101 @@
-# Reference: https://github.com/K9Ns/data-pipelines-with-apache-airflow/blob/main/chapter08/docker-compose.yml
-# docker-copmose version
-# https://docs.docker.com/compose/compose-file/
-
 # docker compose spec
 # https://github.com/compose-spec/compose-spec/blob/master/spec.md
 # https://github.com/compose-spec/compose-spec/blob/master/spec.md#extension
 # https://github.com/compose-spec/compose-spec/blob/master/spec.md#fragments
 
+# airflow configs
+# https://airflow.apache.org/docs/apache-airflow/stable/configurations-ref.html#webserver
 
-version: '3.7'
 # ====================================== AIRFLOW ENVIRONMENT VARIABLES =======================================
-x-environment: &airflow_environment
-  # Airflow settings.
-  - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-  - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
-  - AIRFLOW__CORE__LOAD_EXAMPLES=False
-  - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql://airflow:airflow@postgres:5432/airflow
-  - AIRFLOW__CORE__STORE_DAG_CODE=True
-  - AIRFLOW__CORE__STORE_SERIALIZED_DAGS=True
-  - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
-  - AIRFLOW__WEBSERVER__RBAC=False
-  # - AIRFLOW__CORE__DEFAULT_TIMEZONE=Asia/Seoul
-x-airflow-image: &airflow_image apache/airflow:2.3.3-python3.9
+---
+version: '3.7'
+x-airflow-common:
+  &airflow-common
+  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.3.3-python3.9}
+  environment:
+    &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW__CORE__FERNET_KEY: ''
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL: 10
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    - ./data:/data
+    - ./mlflow:/mlflow
+  user: "${AIRFLOW_UID:-50000}:0"
+  depends_on:
+    postgres:
+      condition: service_healthy
+
 # ====================================== /AIRFLOW ENVIRONMENT VARIABLES ======================================
 
 services:
   postgres:
-    image: postgres:12-alpine
+    image: postgres:13
     environment:
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=airflow
-      - POSTGRES_DB=airflow
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
+    restart: always
   
-  init:
+  airflow-init:
+    <<: *airflow-common
     build:
       context: ./docker/airflow-base
-      args:
-        AIRFLOW_BASE_IMAGE: *airflow_image
-    image: instork/airflow-init
-    depends_on:
-      - postgres
-    environment: *airflow_environment
     entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        mkdir -p /sources/logs /sources/dags /sources/plugins /sources/data /sources/mlflow
+        chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins,data,mlflow}
+        exec /entrypoint airflow version
     env_file:
       - airflow.env
-    command: -c "airflow db upgrade && sleep 5 && airflow users create --username $$AIRFLOW_USER --password $$AIRFLOW_PWD --firstname Anonymous --lastname Admin --role Admin --email admin@example.org"
-  
-  webserver:
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_UPGRADE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      # set below on airflow.env
+      # _AIRFLOW_WWW_USER_USERNAME: your_username
+      # _AIRFLOW_WWW_USER_PASSWORD: your_pwd
+    user: "0:0"
+    volumes:
+      - .:/sources
+
+  airflow-webserver:
+    <<: *airflow-common
     build:
       context: ./docker/airflow-base
-      args:
-        AIRFLOW_BASE_IMAGE: *airflow_image
-    image: instork/airflow-webserver
-    restart: always
-    depends_on:
-      - postgres
-    ports:
-      - "8085:8080"
-    volumes:
-      - logs:/opt/airflow/logs
-    environment: *airflow_environment
     command: webserver
+    ports:
+      - 8080:8080
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8085/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
 
-  scheduler:
+  airflow-scheduler:
+    <<: *airflow-common
     build:
       context: ./docker/airflow-scheduler-local
-      args:
-        AIRFLOW_BASE_IMAGE: *airflow_image
-    image: instork/airflow-scheduler
-    restart: always
-    depends_on:
-      - postgres
-    volumes:
-      - ./dags:/opt/airflow/dags
-      - data:/data
-      - logs:/opt/airflow/logs
-    environment: *airflow_environment
     command: scheduler
+    restart: always
     extra_hosts:
       - 'mongoservice:172.17.0.1'
 
 volumes:
-  data:
-  logs:
+  postgres-db-volume:
