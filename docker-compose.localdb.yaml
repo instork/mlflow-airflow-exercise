@@ -54,6 +54,7 @@ services:
     <<: *airflow-common
     build:
       context: ./docker/airflow-base
+    image: instork/airflow-init
     entrypoint: /bin/bash
     command:
       - -c
@@ -78,6 +79,7 @@ services:
     <<: *airflow-common
     build:
       context: ./docker/airflow-base
+    image: instork/airflow-webserver
     command: webserver
     ports:
       - 8080:8080
@@ -92,6 +94,7 @@ services:
     <<: *airflow-common
     build:
       context: ./docker/airflow-scheduler-local
+    image: instork/airflow-scheduler
     command: scheduler
     restart: always
     extra_hosts:
