@@ -1,8 +1,8 @@
+from airflow.decorators import task
 
 def _get_mongo_client():
     """Get mongo client."""
     import os
-
     from dotenv import load_dotenv
     from pymongo import MongoClient
 
@@ -14,32 +14,27 @@ def _get_mongo_client():
     client = MongoClient(f"mongodb://{user}:{pwd}@{host}:{port}")
     return client
 
-def get_data_save_csv(templates_dict):
+@task()
+def get_data_save_csv(db_name, collection_name, query, **kwargs):
     """Get Data from MongoDB and save as csv file."""
     import pandas as pd
     import os
     
-    start_time = templates_dict["start_time"]
-    db_name = templates_dict["db_name"]
-    collection_name = templates_dict["collection_name"]
-    query = templates_dict["query"]
-
+    start_time = kwargs["data_interval_end"]
     client = _get_mongo_client()
     db = client[db_name]
     result_df = pd.DataFrame(list(db[collection_name].find(query)))
     client.close()
     os.makedirs('/data/csvs/', exist_ok=True)
-    result_df.loc[:,result_df.columns!='_id'].to_csv(f"/data/csvs/{db_name}_{collection_name}_{start_time}.csv", index=False)
+    file_loc = f"/data/csvs/{db_name}_{collection_name}_{start_time}.csv"
+    result_df.loc[:,result_df.columns!='_id'].to_csv(file_loc, index=False)
+    return file_loc
 
-
-def print_csv_head(templates_dict):
+@task()
+def print_csv_head(file_loc, **kwargs):
     import pandas as pd
     import logging
     logger = logging.getLogger(__name__)
-
-    start_time = templates_dict["start_time"]
-    db_name = templates_dict["db_name"]
-    collection_name = templates_dict["collection_name"]
     
-    result_df = pd.read_csv(f"/data/csvs/{db_name}_{collection_name}_{start_time}.csv")
+    result_df = pd.read_csv(file_loc)
     logger.info(result_df.head())
