@@ -100,5 +100,16 @@ services:
     extra_hosts:
       - 'mongoservice:172.17.0.1'
 
+  mlflow:
+    image: 'atcommons/mlflow-server'
+    build: ./docker/mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data/mlflow:/mlflow
+    environment:
+      BACKEND_URI: sqlite:////mlflow/mlflow.db
+      ARTIFACT_ROOT: /mlflow/artifacts
+
 volumes:
   postgres-db-volume:

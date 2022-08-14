@@ -112,5 +112,16 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=airflow
       - MONGO_INITDB_DATABASE=mydb
     
+  mlflow:
+    image: 'atcommons/mlflow-server'
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data/mlflow:/mlflow
+    environment:
+      BACKEND_URI: sqlite:////mlflow/mlflow.db
+      ARTIFACT_ROOT: /mlflow/artifacts
+
 volumes:
   postgres-db-volume:

@@ -83,3 +83,6 @@ $ db["fred"].find({}).sort({"etz_time":-1}).limit(1);
     $ docker-compose -f docker-compose.localdb.yaml down --volumes --remove-orphans
     ```
 
+## References
+- MLFlow
+    - https://github.com/at-gmbh/docker-mlflow-server
