@@ -1,4 +1,6 @@
+from asyncio.log import logger
 from airflow.decorators import task
+import pandas as pd
 
 def _get_mongo_client():
     """Get mongo client."""
@@ -15,20 +17,36 @@ def _get_mongo_client():
     return client
 
 @task()
-def get_data_save_csv(db_name, collection_name, query, **kwargs):
+def get_data_save_csv(db_name, collection_name, day_before, **kwargs):
     """Get Data from MongoDB and save as csv file."""
+    import logging
     import pandas as pd
     import os
-    
-    start_time = kwargs["data_interval_end"]
+    from ml.validation.validation import check_missing
+
+    logger = logging.getLogger(__name__)
+
+    folder = "/data/csvs/train/1H"
+
+    # pendulum datetime in UTC
+    cur_time = kwargs["data_interval_end"]
+    start_time = cur_time.subtract(days=day_before)
+
     client = _get_mongo_client()
     db = client[db_name]
-    result_df = pd.DataFrame(list(db[collection_name].find(query)))
+    df = pd.DataFrame(list(db[collection_name].find({"utc_time":{"$gte":start_time, "$lt":cur_time}})))
     client.close()
-    os.makedirs('/data/csvs/', exist_ok=True)
-    file_loc = f"/data/csvs/{db_name}_{collection_name}_{start_time}.csv"
-    result_df.loc[:,result_df.columns!='_id'].to_csv(file_loc, index=False)
+
+    
+    os.makedirs(folder, exist_ok=True)
+    file_loc = os.path.join(folder, f"{db_name}_{collection_name}_{cur_time}_{day_before}.csv")
+    df = df.loc[:,df.columns!="_id"]
+
+    check_missing(df, "utc_time" , "1H")
+    df.to_csv(file_loc, index=False)
+
     return file_loc
+    
 
 @task()
 def print_csv_head(file_loc, **kwargs):
@@ -36,5 +54,5 @@ def print_csv_head(file_loc, **kwargs):
     import logging
     logger = logging.getLogger(__name__)
     
-    result_df = pd.read_csv(file_loc)
-    logger.info(result_df.head())
+    df = pd.read_csv(file_loc)
+    logger.info(df.head())

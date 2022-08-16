@@ -1,5 +1,11 @@
 # mlflow-airflow-exercise
 
+## Sample Image
+
+<img src = "./img/sample_img.png" width="60%">
+
+&nbsp;
+
 ## Prerequisites
 - Install docker
 - Install docker-compose
@@ -14,10 +20,22 @@
     ```
     FRED_API_KEY=<FRED_API_KEY>
     ```
-- Create airflow.env like below to set an account
+- Create .env like below for docker compose
     ```
-    _AIRFLOW_WWW_USER_USERNAME=<AIRFLOW_USER>
-    _AIRFLOW_WWW_USER_PASSWORD=<AIRFLOW_PWD>
+    _AIRFLOW_WWW_USER_USERNAME=airflow_user
+    _AIRFLOW_WWW_USER_PASSWORD=airflow_pwd
+
+    AWS_ACCESS_KEY_ID=mlflow
+    AWS_SECRET_ACCESS_KEY=mlflow
+    MLFLOW_S3_ENDPOINT_URL=http://<External IP>:9000
+    MLFLOW_TRACKING_URI=http://<External IP>:5000
+
+    AWS_REGION=us-east-1
+    AWS_BUCKET_NAME=mlflow
+    MYSQL_DATABASE=mlflow
+    MYSQL_USER=<MYSQL_USER>
+    MYSQL_PASSWORD=<MYSQL_PASSWORD>
+    MYSQL_ROOT_PASSWORD=<MYSQL_ROOT_PASSWORD>
     ```
 
 
@@ -85,4 +103,4 @@ $ db["fred"].find({}).sort({"etz_time":-1}).limit(1);
 
 ## References
 - MLFlow
-    - https://github.com/at-gmbh/docker-mlflow-server
+    - https://github.com/Toumash/mlflow-docker
