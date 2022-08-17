@@ -2,7 +2,7 @@
 
 ## Sample Image
 
-<img src = "./img/sample_img.png" width="60%">
+<img src = "./img/sample_img2.png" width="80%">
 
 &nbsp;
 

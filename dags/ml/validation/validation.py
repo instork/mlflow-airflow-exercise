@@ -1,5 +1,3 @@
-from asyncio.log import logger
-import enum
 from airflow.decorators import task
 
 def check_missing(df, time_col, freq):
@@ -61,7 +59,7 @@ def check_stats(file_loc, exp_name, **kwargs):
     mlflow.set_experiment(exp_name)
 
     series = df.trade_price
-    ld_series = df.log_diff_trade_price.iloc[1:]
+    ld_series = df.log_diff_trade_price.dropna()
     
     stats = describe(series)
     ld_stats = describe(ld_series)

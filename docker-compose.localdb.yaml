@@ -79,7 +79,7 @@ services:
     image: instork/airflow-webserver
     command: webserver
     ports:
-      - 8080:8080
+      - 8085:8080
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8085/health"]
       interval: 10s
@@ -92,6 +92,8 @@ services:
     build:
       context: ./docker/airflow-scheduler-local
     image: instork/airflow-scheduler
+    env_file:
+      - .env
     command: scheduler
     restart: always
     extra_hosts:

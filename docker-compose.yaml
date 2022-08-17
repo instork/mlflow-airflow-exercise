@@ -94,6 +94,8 @@ services:
     image: instork/airflow-scheduler
     command: scheduler
     restart: always
+    env_file:
+      - .env
 
   mongodb:
     hostname: mongoservice

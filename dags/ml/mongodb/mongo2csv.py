@@ -1,6 +1,4 @@
-from asyncio.log import logger
 from airflow.decorators import task
-import pandas as pd
 
 def _get_mongo_client():
     """Get mongo client."""
