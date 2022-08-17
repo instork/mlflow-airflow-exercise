@@ -101,7 +101,13 @@ services:
     image: mongo:4.4.15
     restart: always
     ports:
-      - 27018:27017
+      - 27017:27017
+    volumes:
+      - ./data/mongodb:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME:-airflow}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD:-airflow}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE:-mongotest}
 
 # ========================================================
   s3:

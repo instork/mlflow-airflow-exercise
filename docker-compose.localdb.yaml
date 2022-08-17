@@ -114,7 +114,6 @@ services:
     volumes:
       - minio_volume:/data
       
-
   db:
     image: mysql/mysql-server:5.7.28
     restart: unless-stopped
