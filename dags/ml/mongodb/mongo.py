@@ -15,7 +15,7 @@ def _get_mongo_client():
     return client
 
 @task()
-def get_data_save_csv(db_name, collection_name, day_before, **kwargs):
+def get_data_save_csv(db_name, coin_name, day_before, **kwargs):
     """Get Data from MongoDB and save as csv file."""
     import logging
     import pandas as pd
@@ -32,19 +32,47 @@ def get_data_save_csv(db_name, collection_name, day_before, **kwargs):
 
     client = _get_mongo_client()
     db = client[db_name]
-    df = pd.DataFrame(list(db[collection_name].find({"utc_time":{"$gte":start_time, "$lt":cur_time}})))
+    df = pd.DataFrame(list(db[coin_name].find({"utc_time":{"$gte":start_time, "$lt":cur_time}})))
     client.close()
 
-    
     os.makedirs(folder, exist_ok=True)
-    file_loc = os.path.join(folder, f"{db_name}_{collection_name}_{cur_time}_{day_before}.csv")
+    file_loc = os.path.join(folder, f"{db_name}_{coin_name}_{cur_time}_{day_before}.csv")
     df = df.loc[:,df.columns!="_id"]
 
     check_missing(df, "utc_time" , "1H")
     df.to_csv(file_loc, index=False)
 
     return file_loc
+
+@task()
+def get_test_data(db_name, coin_name, start_date, exp_name, **kwargs): 
+    import pandas as pd    
+    import numpy as np
+    from ml.preprocess.preprocess import make_daily_df
+    import logging
+    logger = logging.getLogger(__name__)
+    # UTC 현재시간
+    cur_time = kwargs["data_interval_end"]
+
+    if str(start_date) == str(cur_time):
+        return None
+
+    start_time = cur_time.subtract(days=2)
+    client = _get_mongo_client()
+    db = client[db_name]
+    cur_time = kwargs["data_interval_end"]
+    df = pd.DataFrame(list(db[coin_name].find({"utc_time":{"$gte":start_time, "$lt":cur_time}})))
     
+    logger.info(df.head())
+
+
+    daily_df = make_daily_df(df)
+    daily_df = daily_df.sort_values("etz_date")
+    daily_df['log_diff_trade_price'] = np.log(df["trade_price"]).diff()
+    y_true = daily_df.log_diff_trade_price.values[1]
+
+    return y_true
+
 
 @task()
 def print_csv_head(file_loc, **kwargs):

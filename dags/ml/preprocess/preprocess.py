@@ -1,11 +1,8 @@
 from airflow.decorators import task
 
-@task()
-def make_daily_csv(file_loc):
-    import os
-    import pandas as pd
+def make_daily_df(df):
     import datetime as dt
-    
+
     conditions = {
             "etz_time": "first",
             "opening_price": "first",
@@ -15,13 +12,21 @@ def make_daily_csv(file_loc):
             "candle_acc_trade_price": "sum",
             "candle_acc_trade_volume": "sum",
     }
-
-    df = pd.read_csv(file_loc, parse_dates=["utc_time"])
     df['etz_time'] = df['utc_time'] + dt.timedelta(hours=-5)
     df['etz_date'] = df['etz_time'].apply(lambda x: x.date())
     
     daily_df = df.groupby('etz_date').agg(conditions)
     daily_df = daily_df.reset_index()
+    return daily_df
+
+@task()
+def save_daily_df(file_loc):
+    import os
+    import pandas as pd
+    
+    df = pd.read_csv(file_loc, parse_dates=["utc_time"])
+
+    daily_df = make_daily_df(df)
 
     folder, file_name = os.path.split(file_loc)
     new_folder = os.path.join(os.path.dirname(folder), '1D')
@@ -32,8 +37,9 @@ def make_daily_csv(file_loc):
 
     return daily_df_loc
 
+
 @task()
-def make_log_normal(file_loc):
+def save_log_diff(file_loc):
     import pandas as pd
     import numpy as np
 
