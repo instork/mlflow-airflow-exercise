@@ -65,7 +65,6 @@ def get_test_data(db_name, coin_name, start_date, exp_name, **kwargs):
     
     logger.info(df.head())
 
-
     daily_df = make_daily_df(df)
     daily_df = daily_df.sort_values("etz_date")
     daily_df['log_diff_trade_price'] = np.log(df["trade_price"]).diff()

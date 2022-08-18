@@ -47,15 +47,15 @@ def train_arima(daily_df_loc, p, d, q, trend, **kwargs):
             os.remove("model_summary.txt")
             logger = logging.getLogger(__name__)
             logger.info(logged_result)
-            return exp_name, y_pred
+            return exp_name
         except LinAlgError:
             results = dict(convergence_error=1,stationarity_error=0)
             mlflow.log_metrics(results)
-            return None, None
+            return None
         except ValueError:
             results = dict(convergence_error=0,stationarity_error=1)
             mlflow.log_metrics(results)
-            return None, None
+            return None
     
 
 @task()
@@ -68,9 +68,10 @@ def test_arima(exp_name, y_true, start_date, **kwargs):
 
     client = MlflowClient()
     model_info = client.get_latest_versions(exp_name)[0]
+    
     cur_version = int(model_info.version)
     if cur_version > 1:
-        client.delete_model_version("arima_temp", f"{cur_version-1}")
+        client.delete_model_version(exp_name, f"{cur_version-1}")
     
     run_id = model_info.run_id
     data = client.get_run(run_id).data.to_dictionary()
