@@ -26,7 +26,7 @@ def train_arima(daily_df_loc, p, d, q, trend, **kwargs):
     convergence_error, stationarity_error = 0, 0
     logged_result = ""
     with mlflow.start_run() as run:
-        mlflow.log_params(dict(p=p,d=d,q=q,trend=trend,etz_date=str(etz_time)))
+        mlflow.log_params(dict(p=p, d=d, q=q, trend=trend, trained_etz_date=str(etz_time)))
         try:
             model = ARIMA(endog=daily_btc_series, order=(p, d, q), trend=trend).fit()
             model_summary = model.summary().as_text()
@@ -60,25 +60,34 @@ def train_arima(daily_df_loc, p, d, q, trend, **kwargs):
 
 @task()
 def test_arima(exp_name, y_true, start_date, **kwargs):
-    from mlflow import MlflowClient, mlflow, log_metric
-    cur_time = kwargs["data_interval_end"]
+    from mlflow import MlflowClient, mlflow, log_metric, log_param
+    import logging
+    logger = logging.getLogger(__name__)
 
-    if str(start_date) == str(cur_time):
-        return None
+    cur_time = kwargs["data_interval_end"]
+    etz_time = cur_time.subtract(hours=5)
+    start_date = start_date.add(days=1) # date_interval_end가 실제 시작시간
+    
+    logger.info(start_date)
+    logger.info(cur_time)
+
+    if str(cur_time) == str(start_date):
+        return 
 
     client = MlflowClient()
     model_info = client.get_latest_versions(exp_name)[0]
+    latest_version = int(model_info.version)
+    before_version = latest_version - 1
     
-    cur_version = int(model_info.version)
-    if cur_version > 1:
-        client.delete_model_version(exp_name, f"{cur_version-1}")
-    
-    run_id = model_info.run_id
+    run_id = client.get_model_version(exp_name, f"{before_version}").run_id
     data = client.get_run(run_id).data.to_dictionary()
     y_pred = data['metrics']['y_pred']
     
     with mlflow.start_run(run_id) as run:
         rmse = ((y_true - y_pred) ** (2)) ** (1/2)
+        log_metric("y_true", y_true)
         log_metric("rmse", rmse)
+        log_param("tested_etz_date", str(etz_time))
 
+    client.delete_model_version(exp_name, f"{before_version}")
     

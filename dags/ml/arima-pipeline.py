@@ -5,14 +5,14 @@ import pendulum
 
 ########################### Set Configs ########################
 # SCHEDULE_INTERVAL = "0 0 * * *" 
-SCHEDULE_INTERVAL = "@daily"
-ETZ = pendulum.timezone("US/Eastern")
-start_date = dt.datetime(2021, 12, 31, 0, 0, tzinfo=ETZ)
+SCHEDULE_INTERVAL = "0 5 * * *"
+UCT = pendulum.timezone("UCT")
+start_date = pendulum.datetime(2021, 12, 31, 5, 0, tz=UCT)
 ################################################################
 
 @dag(
     dag_id="ml-train_arima",
-    start_date=dt.datetime(2021, 12, 31, 0, 0, tzinfo=ETZ),
+    start_date=start_date,
     schedule_interval=SCHEDULE_INTERVAL,
     max_active_runs=1,
 )
