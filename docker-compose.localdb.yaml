@@ -127,7 +127,7 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
-      - ./data/mlflow_db:/data
+      - ./data/mlflow_db:/var/lib/mysql
     networks:
       - internal
 
