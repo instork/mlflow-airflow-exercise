@@ -51,11 +51,11 @@ def train_arima(daily_df_loc, p, d, q, trend, **kwargs):
         except LinAlgError:
             results = dict(convergence_error=1,stationarity_error=0)
             mlflow.log_metrics(results)
-            return None
+            return ''
         except ValueError:
             results = dict(convergence_error=0,stationarity_error=1)
             mlflow.log_metrics(results)
-            return None
+            return ''
     
 
 @task()
@@ -65,21 +65,17 @@ def test_arima(exp_name, y_true, start_date, **kwargs):
     logger = logging.getLogger(__name__)
 
     cur_time = kwargs["data_interval_end"]
-    etz_time = cur_time.subtract(hours=5)
-    start_date = start_date.add(days=1) # date_interval_end가 실제 시작시간
+    start_date = start_date.add(days=1) # date_interval_end is actual logical start time
     
-    logger.info(start_date)
-    logger.info(cur_time)
-
     if str(cur_time) == str(start_date):
-        return 
+        return ''
 
     client = MlflowClient()
     model_info = client.get_latest_versions(exp_name)[0]
     latest_version = int(model_info.version)
-    before_version = latest_version - 1
+    old_version = latest_version - 1
     
-    run_id = client.get_model_version(exp_name, f"{before_version}").run_id
+    run_id = client.get_model_version(exp_name, f"{old_version}").run_id
     data = client.get_run(run_id).data.to_dictionary()
     y_pred = data['metrics']['y_pred']
     
@@ -87,7 +83,19 @@ def test_arima(exp_name, y_true, start_date, **kwargs):
         rmse = ((y_true - y_pred) ** (2)) ** (1/2)
         log_metric("y_true", y_true)
         log_metric("rmse", rmse)
+        etz_time = cur_time.subtract(hours=5)
         log_param("tested_etz_date", str(etz_time))
 
-    client.delete_model_version(exp_name, f"{before_version}")
+    return old_version
+
+@task()
+def delete_registered(exp_name, version, start_date, **kwargs):
+    from mlflow import MlflowClient
     
+    cur_time = kwargs["data_interval_end"]
+    start_date = start_date.add(days=1)
+    if str(cur_time) == str(start_date):
+        return 
+
+    client = MlflowClient()
+    client.delete_model_version(exp_name, f"{version}")

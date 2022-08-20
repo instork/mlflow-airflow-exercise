@@ -3,10 +3,8 @@ from airflow.decorators import task
 def _get_mongo_client():
     """Get mongo client."""
     import os
-    from dotenv import load_dotenv
     from pymongo import MongoClient
 
-    load_dotenv("/tmp/mongo.env")
     user = os.getenv("MONGODB_USER")
     pwd = os.getenv("MONGODB_PWD")
     host = os.getenv("MONGODB_HOST")
@@ -53,9 +51,9 @@ def get_test_data(db_name, coin_name, start_date, exp_name, **kwargs):
     logger = logging.getLogger(__name__)
     # UTC 현재시간
     cur_time = kwargs["data_interval_end"]
-
-    if str(start_date) == str(cur_time):
-        return None
+    start_date = start_date.add(days=1)
+    if str(cur_time) == str(start_date):
+        return ''
 
     start_time = cur_time.subtract(days=2)
     client = _get_mongo_client()
