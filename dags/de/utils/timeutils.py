@@ -42,7 +42,7 @@ def get_str_date_before_from_ts(
     Using on de/fred/request.py , de/googlenews/request.py
     """
     # https://github.com/sdispater/pendulum/blob/master/docs/docs/string_formatting.md
-    start_time = pendulum.from_format(ts, "YYYY-MM-DDTHH:mm:ssZ") 
+    start_time = pendulum.from_format(ts, "YYYY-MM-DDTHH:mm:ssZ")
     etz_time = tz.convert(start_time).subtract(minutes=1)  # to get data day before
     start_date = etz_time.strftime(date_format)
     return start_date
@@ -55,7 +55,7 @@ def get_datetime_from_ts(
     Get dt.datetime form ts(start_time).
     Using on data2mongo.py
     """
-    start_time = pendulum.from_format(ts, "YYYY-MM-DDTHH:mm:ssZ") 
+    start_time = pendulum.from_format(ts, "YYYY-MM-DDTHH:mm:ssZ")
     etz_time = tz.convert(start_time)
     if get_day_before:
         etz_time = etz_time.subtract(minutes=1)

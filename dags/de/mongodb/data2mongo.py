@@ -4,6 +4,7 @@ INDEX_UNIQUE = False
 def _get_mongo_client():
     """Get mongo client."""
     import os
+
     from pymongo import MongoClient
 
     user = os.getenv("MONGODB_USER")
@@ -12,6 +13,7 @@ def _get_mongo_client():
     port = os.getenv("MONGODB_PORT")
     client = MongoClient(f"mongodb://{user}:{pwd}@{host}:{port}")
     return client
+
 
 ## for exercise_fred2db-decorator.py
 # def get_mongo_client():
@@ -34,7 +36,7 @@ def insert_ohlcvs(templates_dict, **context):
     start_time = templates_dict["start_time"]
     db_name = templates_dict["db_name"]
     utc_time = get_datetime_from_ts(start_time, get_day_before=False, tz=UTC)
-    
+
     logger.info(start_time)
     logger.info(utc_time)
 

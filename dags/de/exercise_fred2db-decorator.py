@@ -80,8 +80,7 @@ def fred2db():
         return fred_data
 
     @task(
-        task_id="fetch_fred_task",
-        templates_dict=fred_templates_dict,
+        task_id="fetch_fred_task", templates_dict=fred_templates_dict,
     )
     def insert_single(single_dict, templates_dict=fred_mongo_templates_dict, **context):
         import logging
