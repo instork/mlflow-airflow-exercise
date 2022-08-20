@@ -26,7 +26,7 @@ news_templates_dict = {"queries": queries, "start_time": "{{ data_interval_end }
 dag = DAG(
     dag_id="de-news2db",
     description="Get fred data and news and load on MongoDB",
-    start_date=dt.datetime(2021, 6, 21, 0, 0, tzinfo=ETZ),
+    start_date=dt.datetime(2019, 12, 31, 0, 0, tzinfo=ETZ),
     schedule_interval=SCHEDULE_INTERVAL,
     max_active_runs=1,
     default_args={

@@ -9,21 +9,10 @@
 ## Prerequisites
 - Install docker
 - Install docker-compose
-- Create docker/airflow-scheduler/mongo.env like below
-    ```
-    MONGODB_USER=airflow
-    MONGODB_PWD=airflow
-    MONGODB_HOST=mongoservice
-    MONGODB_PORT=27017
-    ```
-- Create docker/airflow-scheduler/fred.env like below
-    ```
-    FRED_API_KEY=<FRED_API_KEY>
-    ```
 - Create .env like below for docker compose
     ```
-    _AIRFLOW_WWW_USER_USERNAME=airflow_user
-    _AIRFLOW_WWW_USER_PASSWORD=airflow_pwd
+    _AIRFLOW_WWW_USER_USERNAME=airlfow
+    _AIRFLOW_WWW_USER_PASSWORD=airlfow
 
     AWS_ACCESS_KEY_ID=mlflow
     AWS_SECRET_ACCESS_KEY=mlflow
@@ -33,9 +22,17 @@
     AWS_REGION=us-east-1
     AWS_BUCKET_NAME=mlflow
     MYSQL_DATABASE=mlflow
-    MYSQL_USER=<MYSQL_USER>
-    MYSQL_PASSWORD=<MYSQL_PASSWORD>
-    MYSQL_ROOT_PASSWORD=<MYSQL_ROOT_PASSWORD>
+    MYSQL_USER=mlflow
+    MYSQL_PASSWORD=mlflow
+    MYSQL_ROOT_PASSWORD=mlflow_pwd
+
+    MONGODB_USER=airflow
+    MONGODB_PWD=airflow
+    MONGODB_HOST=mongoservice
+    MONGODB_PORT=27017
+
+    # if you want to use fred data
+    FRED_API_KEY=<FRED_API_KEY>
     ```
 
 
@@ -102,5 +99,6 @@ $ db["fred"].find({}).sort({"etz_time":-1}).limit(1);
     ```
 
 ## References
-- MLFlow
+- MLFlow docker
     - https://github.com/Toumash/mlflow-docker
+    - https://www.mlflow.org/docs/latest/tracking.html#scenario-4-mlflow-with-remote-tracking-server-backend-and-artifact-stores

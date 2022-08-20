@@ -25,7 +25,7 @@ fred_templates_dict = {
 dag = DAG(
     dag_id="de-fred2db",
     description="Get fred data and news and load on MongoDB",
-    start_date=dt.datetime(2020, 1, 1, 0, 0, tzinfo=ETZ),
+    start_date=dt.datetime(2019, 12, 31, 0, 0, tzinfo=ETZ),
     schedule_interval=SCHEDULE_INTERVAL,
     max_active_runs=1,
     default_args={

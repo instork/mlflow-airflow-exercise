@@ -5,10 +5,7 @@ def fetch_fred(templates_dict, **context):
     import time
 
     from de.utils.timeutils import get_str_date_before_from_ts
-    from dotenv import load_dotenv
     from fredapi import Fred
-
-    load_dotenv("/tmp/fred.env")
 
     logger = logging.getLogger(__name__)
     fred_api_key = os.getenv("FRED_API_KEY")

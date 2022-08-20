@@ -4,11 +4,8 @@ INDEX_UNIQUE = False
 def _get_mongo_client():
     """Get mongo client."""
     import os
-
-    from dotenv import load_dotenv
     from pymongo import MongoClient
 
-    load_dotenv("/tmp/mongo.env")
     user = os.getenv("MONGODB_USER")
     pwd = os.getenv("MONGODB_PWD")
     host = os.getenv("MONGODB_HOST")

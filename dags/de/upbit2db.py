@@ -28,7 +28,7 @@ for ticker in tickers:
 dag = DAG(
     dag_id="de-upbit2db",
     description="Get ohlcv data using upbit API",
-    start_date=dt.datetime(2022, 5, 31, 9, 0, tzinfo=UTC),
+    start_date=dt.datetime(2019, 12, 31, 0, 0, tzinfo=UTC),
     schedule_interval=SCHEDULE_INTERVAL,
     max_active_runs=4,
     default_args={
