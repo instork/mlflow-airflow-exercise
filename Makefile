@@ -9,4 +9,3 @@ clean_up:
 	sudo rm -rf data/mlflow_artifact/*
 	sudo rm -rf data/mlflow_db/*
 	sudo rm -rf data/mongodb/*
-	sudo rm -rf data/mlflow_artifact/.*

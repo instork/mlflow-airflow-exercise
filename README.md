@@ -2,7 +2,7 @@
 
 ## Sample Image
 
-<img src = "./img/sample_img2.png" width="80%">
+<img src = "./img/sample_img3.png" width="80%">
 
 &nbsp;
 
@@ -85,8 +85,6 @@ $ db["fred"].find({}).sort({"etz_time":-1}).limit(1);
     - https://medium.com/mongoaudit/how-to-enable-authentication-on-mongodb-b9e8a924efac
 - Connecting from a Docker container to a local MongoDB
     - https://tsmx.net/docker-local-mongodb/
-- Make docker/airflow-scheduler-local/.env file on like [.env sample](https://github.com/instork/airflow-api2db-exercise/blob/main/docker/airflow-de/.env_example)
-    - change MONGODB_USER, MONGODB_PWD
 - Use docker-compose-localdb.yaml as docker-compose.yaml
     ```bash
     $ docker-compose -f docker-compose.localdb.yaml up
@@ -99,6 +97,6 @@ $ db["fred"].find({}).sort({"etz_time":-1}).limit(1);
     ```
 
 ## References
-- MLFlow docker
+- Dockerized MLFlow Server
     - https://github.com/Toumash/mlflow-docker
     - https://www.mlflow.org/docs/latest/tracking.html#scenario-4-mlflow-with-remote-tracking-server-backend-and-artifact-stores

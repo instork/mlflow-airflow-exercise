@@ -30,7 +30,7 @@ def train_arima(daily_df_loc, p, d, q, trend, **kwargs):
         try:
             model = ARIMA(endog=daily_btc_series, order=(p, d, q), trend=trend).fit()
             model_summary = model.summary().as_text()
-            with open("model_summary.txt", 'w') as f:
+            with open(f"model_summary_{exp_name}.txt", 'w') as f:
                 f.write(model_summary)
 
             y_pred = model.forecast(steps=1).values[0]
@@ -43,8 +43,8 @@ def train_arima(daily_df_loc, p, d, q, trend, **kwargs):
             mlflow.log_metrics(results)
             logged_result = mlflow.statsmodels.log_model(model, artifact_path=exp_name, 
                                         registered_model_name=exp_name)
-            mlflow.log_artifact("model_summary.txt")
-            os.remove("model_summary.txt")
+            mlflow.log_artifact(f"model_summary_{exp_name}.txt")
+            os.remove(f"model_summary_{exp_name}.txt")
             logger = logging.getLogger(__name__)
             logger.info(logged_result)
             return exp_name

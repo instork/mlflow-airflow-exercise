@@ -43,7 +43,7 @@ def get_data_save_csv(db_name, coin_name, day_before, **kwargs):
     return file_loc
 
 @task()
-def get_test_data(db_name, coin_name, start_date, exp_name, **kwargs): 
+def get_test_data(db_name, coin_name, dag_start_time, exp_name, **kwargs): 
     import pandas as pd    
     import numpy as np
     from ml.preprocess.preprocess import make_daily_df
@@ -51,21 +51,22 @@ def get_test_data(db_name, coin_name, start_date, exp_name, **kwargs):
     logger = logging.getLogger(__name__)
     # UTC 현재시간
     cur_time = kwargs["data_interval_end"]
-    start_date = start_date.add(days=1)
-    if str(cur_time) == str(start_date):
+    dag_start_time = dag_start_time.add(days=1)
+    if str(cur_time) == str(dag_start_time):
         return ''
-
-    start_time = cur_time.subtract(days=2)
+    
+    query_start_time = cur_time.subtract(days=2)
     client = _get_mongo_client()
     db = client[db_name]
     cur_time = kwargs["data_interval_end"]
-    df = pd.DataFrame(list(db[coin_name].find({"utc_time":{"$gte":start_time, "$lt":cur_time}})))
+    df = pd.DataFrame(list(db[coin_name].find({"utc_time":{"$gte":query_start_time, "$lt":cur_time}})))
     
     logger.info(df.head())
 
     daily_df = make_daily_df(df)
     daily_df = daily_df.sort_values("etz_date")
-    daily_df['log_diff_trade_price'] = np.log(df["trade_price"]).diff()
+    daily_df['log_diff_trade_price'] = np.log(daily_df["trade_price"]).diff()
+    logger.info(daily_df['etz_date'])
     y_true = daily_df.log_diff_trade_price.values[1]
 
     return y_true
