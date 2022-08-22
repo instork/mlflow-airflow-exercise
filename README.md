@@ -2,7 +2,10 @@
 
 ## Sample Image
 
-<img src = "./img/sample_img3.png" width="80%">
+<img src = "./img/sample_img4.png" width="90%">
+
+- more result images on:
+    - https://github.com/instork/mlflow-airflow-exercise/blob/main/result.md
 
 &nbsp;
 
@@ -11,13 +14,24 @@
 - Install docker-compose
 - Create .env like below for docker compose
     ```
+    # if you are running on a cloud or server
+    # port-forward on 8080, 9000, 9001, 5000 is needed 
+    MLFLOW_S3_ENDPOINT_URL=http://<External IP>:9000
+    MLFLOW_TRACKING_URI=http://<External IP>:5000
+
+    # if you are running on local server
+    # localhost doesn't work. Use internal IP like 192.x.x.x.
+    # How to find internal IP: https://www.avast.com/c-how-to-find-ip-address
+
+    MLFLOW_S3_ENDPOINT_URL=http://<Internal IP>:9000
+    MLFLOW_TRACKING_URI=http://<Internal IP>:5000
+
+
     _AIRFLOW_WWW_USER_USERNAME=airlfow
     _AIRFLOW_WWW_USER_PASSWORD=airlfow
 
     AWS_ACCESS_KEY_ID=mlflow
     AWS_SECRET_ACCESS_KEY=mlflow
-    MLFLOW_S3_ENDPOINT_URL=http://<External IP>:9000
-    MLFLOW_TRACKING_URI=http://<External IP>:5000
 
     AWS_REGION=us-east-1
     AWS_BUCKET_NAME=mlflow
@@ -35,7 +49,6 @@
     FRED_API_KEY=<FRED_API_KEY>
     ```
 
-
 &nbsp;
 
 ## How to run
@@ -51,6 +64,24 @@
     $ docker-compose down
     $ docker-compose down --volumes --remove-orphans
     ```
+
+- remove data
+    ```bash
+    $ docker-compose down
+    $ docker-compose down --volumes --remove-orphans
+    ```
+
+- To get OHLCV of BTC run `de-upbit2db` DAG
+- To train ARIMA and auto-ARIMA run `ml-arima_pipeline` DAG
+    - At least 121 days of BTC ohlcv must be collected to run ARIMA DAG.
+    - You can change dag configs on each DAG python file for smaller ohlcvs days.
+
+- Airflow:
+    - http://localhost:8080/
+- MLflow
+    - http://localhost:5000/
+- MinIO
+    - http://localhost:9001/
 
 &nbsp;
 
@@ -100,3 +131,5 @@ $ db["fred"].find({}).sort({"etz_time":-1}).limit(1);
 - Dockerized MLFlow Server
     - https://github.com/Toumash/mlflow-docker
     - https://www.mlflow.org/docs/latest/tracking.html#scenario-4-mlflow-with-remote-tracking-server-backend-and-artifact-stores
+- Latest DE part
+    - https://github.com/instork/airflow-api2db-exercise
