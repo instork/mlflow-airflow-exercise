@@ -1,4 +1,5 @@
 from airflow.decorators import task
+from pendulum.datetime import DateTime
 
 
 def _get_mongo_client():
@@ -16,7 +17,7 @@ def _get_mongo_client():
 
 
 @task()
-def get_data_save_csv(db_name, coin_name, day_before, **kwargs):
+def get_data_save_csv(db_name: str, coin_name: str, day_before: int, **kwargs) -> str:
     """Get Data from MongoDB and save as csv file."""
     import logging
     import os
@@ -45,14 +46,16 @@ def get_data_save_csv(db_name, coin_name, day_before, **kwargs):
     )
     df = df.loc[:, df.columns != "_id"]
 
-    check_missing(df, "utc_time", "1H")
     df.to_csv(file_loc, index=False)
 
     return file_loc
 
 
 @task()
-def get_test_data(db_name, coin_name, dag_start_time, exp_name, **kwargs):
+def get_test_data(
+    db_name: str, coin_name: int, dag_start_time: DateTime, **kwargs
+) -> float:
+    """Get test data to test a model trained the day before."""
     import logging
 
     import numpy as np
@@ -87,15 +90,3 @@ def get_test_data(db_name, coin_name, dag_start_time, exp_name, **kwargs):
     y_true = daily_df.log_diff_trade_price.values[1]
 
     return y_true
-
-
-@task()
-def print_csv_head(file_loc, **kwargs):
-    import logging
-
-    import pandas as pd
-
-    logger = logging.getLogger(__name__)
-
-    df = pd.read_csv(file_loc)
-    logger.info(df.head())

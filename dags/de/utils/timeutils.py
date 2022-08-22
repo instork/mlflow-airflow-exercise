@@ -1,8 +1,9 @@
 import datetime as dt
-from time import timezone
 from typing import Dict, List
 
 import pendulum
+from pendulum.datetime import DateTime
+from pendulum.tz.timezone import Timezone
 
 KST = pendulum.timezone("Asia/Seoul")
 ETZ = pendulum.timezone("US/Eastern")  # EST/EDT
@@ -26,7 +27,7 @@ def json_strptime(
     return json_dicts
 
 
-def pend2datetime(p_time: pendulum.datetime):
+def pend2datetime(p_time: DateTime):
     """pedulum datetime to datetime datetime."""
     datetime_string = p_time.to_datetime_string()
     dt_datetime = dt.datetime.fromisoformat(datetime_string)
@@ -34,7 +35,7 @@ def pend2datetime(p_time: pendulum.datetime):
 
 
 def get_str_date_before_from_ts(
-    ts: str, date_format: str = "%Y-%m-%d", tz: pendulum.timezone = ETZ
+    ts: str, date_format: str = "%Y-%m-%d", tz: Timezone = ETZ
 ) -> str:
     """
     Get string datetime from ts(start_time). start time automatically converted to UCT.
@@ -49,15 +50,15 @@ def get_str_date_before_from_ts(
 
 
 def get_datetime_from_ts(
-    ts: str, get_day_before=False, tz: pendulum.timezone = ETZ
+    ts: str, get_day_before=False, tz: Timezone = ETZ
 ) -> dt.datetime:
     """
     Get dt.datetime form ts(start_time).
     Using on data2mongo.py
     """
-    start_time = pendulum.from_format(ts, "YYYY-MM-DDTHH:mm:ssZ")
-    etz_time = tz.convert(start_time)
+    cur_time = pendulum.from_format(ts, "YYYY-MM-DDTHH:mm:ssZ")
+    converted_time = tz.convert(cur_time)
     if get_day_before:
-        etz_time = etz_time.subtract(minutes=1)
-    etz_time = pend2datetime(etz_time)
-    return etz_time
+        converted_time = converted_time.subtract(minutes=1)
+    converted_time = pend2datetime(converted_time)
+    return converted_time

@@ -1,8 +1,10 @@
 from airflow.decorators import task
+from pendulum.datetime import DateTime
 
 
 @task()
-def train_arima(daily_df_loc, p, d, q, trend, **kwargs):
+def train_arima(daily_df_loc: str, p: int, d: int, q: int, trend: str, **kwargs) -> str:
+    """Train ARIMA Model and log on MLFlow Server."""
     import logging
     import os
 
@@ -69,7 +71,8 @@ def train_arima(daily_df_loc, p, d, q, trend, **kwargs):
 
 
 @task()
-def test_arima(exp_name, y_true, start_date, **kwargs):
+def test_arima(exp_name: str, y_true: float, start_date: DateTime, **kwargs) -> int:
+    """Test ARIMA Model and log on MLFlow Server."""
     import logging
 
     from mlflow import MlflowClient, log_metric, log_param, mlflow
@@ -104,7 +107,10 @@ def test_arima(exp_name, y_true, start_date, **kwargs):
 
 
 @task()
-def delete_registered(exp_name, version, start_date, **kwargs):
+def delete_registered(
+    exp_name: str, version: int, start_date: DateTime, **kwargs
+) -> None:
+    """Delete old model."""
     from mlflow import MlflowClient
 
     cur_time = kwargs["data_interval_end"]

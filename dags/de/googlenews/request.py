@@ -1,4 +1,5 @@
 def fetch_news(templates_dict, **context):
+    """Fetch google news using Google News library."""
     import logging
     import random
     import time

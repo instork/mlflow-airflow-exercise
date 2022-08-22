@@ -2,6 +2,7 @@ from airflow.decorators import task
 
 
 def make_daily_df(df):
+    """Make Upbit hourly dataframe to daily dataframe."""
     import datetime as dt
 
     conditions = {
@@ -22,7 +23,8 @@ def make_daily_df(df):
 
 
 @task()
-def save_daily_df(file_loc):
+def save_daily_df(file_loc: str) -> str:
+    """Make and Save Upbit daily dataframe."""
     import os
 
     import pandas as pd
@@ -42,7 +44,8 @@ def save_daily_df(file_loc):
 
 
 @task()
-def save_log_diff(file_loc):
+def save_log_diff(file_loc: str) -> str:
+    """Make log difference on trade_price column and save."""
     import numpy as np
     import pandas as pd
 

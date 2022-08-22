@@ -6,7 +6,7 @@ from de.mongodb.data2mongo import insert_ohlcvs
 from de.upbit.request import fetch_minute_ohlcvs
 from de.utils.timeutils import UTC
 
-########################### Set Configs ###########################
+# ================================ Set Configs ==================================
 SCHEDULE_INTERVAL = "0 * * * *"  # every hour
 ## mongodb
 mongo_templates_dict = {"db_name": "test_db", "start_time": "{{ data_interval_end }}"}
@@ -23,12 +23,12 @@ fetch_template_dicts = {}
 for ticker in tickers:
     fetch_base_template_dict.update(coin_ticker=ticker)
     fetch_template_dicts[ticker] = fetch_base_template_dict.copy()
-################################################################
+# ================================================================================
 
 dag = DAG(
     dag_id="de-upbit2db",
     description="Get ohlcv data using upbit API",
-    start_date=dt.datetime(2019, 12, 31, 0, 0, tzinfo=UTC),
+    start_date=dt.datetime(2021, 6, 30, 0, 0, tzinfo=UTC),
     schedule_interval=SCHEDULE_INTERVAL,
     max_active_runs=4,
     default_args={

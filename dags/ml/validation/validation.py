@@ -1,14 +1,15 @@
 from airflow.decorators import task
 
 
-def check_missing(df, time_col, freq):
-    """ check if data has missing rows"""
+@task()
+def check_missing(file_loc: str, time_col: str, freq: str) -> str:
+    """Check if data has missing rows."""
     import logging
 
     import pandas as pd
 
     logger = logging.getLogger(__name__)
-
+    df = pd.read_csv(file_loc, parse_dates=[time_col])
     min_time = df[time_col].min()
     max_time = df[time_col].max()
     date_index = pd.date_range(start=min_time, end=max_time, freq=freq)
@@ -16,10 +17,12 @@ def check_missing(df, time_col, freq):
     logger.info(f"data time range: {min_time} ~ {max_time}")
     logger.info(len(date_index), len(df))
     assert len(date_index) == len(df)
+    return file_loc
 
 
 @task()
-def check_server_maintenance_time(file_loc, exp_name, **kwargs):
+def check_server_maintenance_time(file_loc: str, exp_name: str, **kwargs):
+    """Check percentage of data loss due to Upbit server maintenance."""
     import datetime as dt
     import logging
     import os
@@ -48,7 +51,8 @@ def check_server_maintenance_time(file_loc, exp_name, **kwargs):
 
 
 @task()
-def check_stats(file_loc, exp_name, **kwargs):
+def check_stats(file_loc: str, exp_name: str, **kwargs):
+    """Check statistics of data."""
     import os
 
     import pandas as pd

@@ -15,24 +15,14 @@ def _get_mongo_client():
     return client
 
 
-## for exercise_fred2db-decorator.py
-# def get_mongo_client():
-#     """Get mongo client."""
-#     user = os.getenv("MONGODB_USER")
-#     pwd = os.getenv("MONGODB_PWD")
-#     host = os.getenv("MONGODB_HOST")
-#     port = os.getenv("MONGODB_PORT")
-#     client = MongoClient(f"mongodb://{user}:{pwd}@{host}:{port}")
-#     return client
-
-
 def insert_ohlcvs(templates_dict, **context):
+    """Insert fetched Upbit OHLCV data into mongodb."""
     import logging
 
     from de.utils.timeutils import UTC, get_datetime_from_ts, json_strptime
 
     logger = logging.getLogger(__name__)
-    # 이미 UTC로 변환됨, 20220601T040000 <- dt.datetime(2022, 6, 1, 0, 0, tzinfo=ETZ)
+
     start_time = templates_dict["start_time"]
     db_name = templates_dict["db_name"]
     utc_time = get_datetime_from_ts(start_time, get_day_before=False, tz=UTC)
@@ -47,8 +37,10 @@ def insert_ohlcvs(templates_dict, **context):
     logger.info(json_dicts)
 
     for d in json_dicts:
-        # 동부시간의 서머타임으로 인해 서머타임 해제 시, 겹치기 때문에 etz_time은 인덱스가 될 수 없음
+        # 동부시간의 서머타임으로 인해 서머타임 해제 시, 시간이 중복되기 때문에 etz_time은 인덱스가 될 수 없음
         # 업비트 서버점검으로 인해 candle_date_time_utc는 인덱스가 될 수 없음(겹침)
+        # => DAG의 실행시간을 collection index로 설정
+        # TODO: 2개 이상을 불러 올 때는 utc_time을 time interval씩 더해서 넣어줘야 함.
         d.update({"utc_time": utc_time})
 
     # Get database
@@ -69,6 +61,7 @@ def insert_ohlcvs(templates_dict, **context):
 
 
 def insert_single(templates_dict, **context):
+    """Insert fetched google news or FRED data into MongoDB."""
     import logging
 
     from de.utils.timeutils import get_datetime_from_ts
@@ -96,3 +89,5 @@ def insert_single(templates_dict, **context):
             logger.info(e)
 
     db[collection_name].insert_one(single_dict)
+
+    mongo_client.close()

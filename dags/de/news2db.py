@@ -7,7 +7,7 @@ from de.googlenews.request import fetch_news
 from de.mongodb.data2mongo import insert_single
 from de.utils.timeutils import ETZ
 
-########################### Set Configs ###########################
+# ================================ Set Configs ==================================
 SCHEDULE_INTERVAL = "0 0 * * *"  # At 00:00
 ## mongodb
 news_mongo_templates_dict = {
@@ -21,7 +21,7 @@ queries = {
     "ETH-News": ["ETH", "ethereum", "ethereum will"],
 }
 news_templates_dict = {"queries": queries, "start_time": "{{ data_interval_end }}"}
-################################################################
+# ================================================================================
 
 dag = DAG(
     dag_id="de-news2db",

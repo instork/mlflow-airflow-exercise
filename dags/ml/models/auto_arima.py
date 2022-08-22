@@ -2,7 +2,8 @@ from airflow.decorators import task
 
 
 @task()
-def train_auto_arima(daily_df_loc, **kwargs):
+def train_auto_arima(daily_df_loc: str, **kwargs) -> str:
+    """Train auto ARIMA Model and log on MLFlow Server."""
     import logging
     import os
     import sys
@@ -25,8 +26,6 @@ def train_auto_arima(daily_df_loc, **kwargs):
 
     if not daily_btc_series.index.is_monotonic_increasing:
         daily_btc_series = daily_btc_series.sort_index()
-
-    # mlflow.statsmodels.autolog()
 
     logged_result = ""
     with mlflow.start_run() as run:

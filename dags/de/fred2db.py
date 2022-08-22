@@ -6,21 +6,21 @@ from de.fred.request import fetch_fred
 from de.mongodb.data2mongo import insert_single
 from de.utils.timeutils import ETZ
 
-########################### Set Configs ###########################
+# ============================ Set Configs ===========================
 SCHEDULE_INTERVAL = "0 0 * * *"  # At 00:00
-## mongodb
+# mongodb
 fred_mongo_templates_dict = {
     "db_name": "test_db",
     "collection_name": "fred",
     "start_time": "{{ data_interval_end }}",
 }
-## FRED
+# FRED
 fred_series_tickers = ["T5YIE", "T5YIFR", "T10YIE", "T10Y2Y", "SP500", "DJIA"]
 fred_templates_dict = {
     "fred_series_tickers": fred_series_tickers,
     "start_time": "{{ data_interval_end }}",
 }
-################################################################
+# ===================================================================
 
 dag = DAG(
     dag_id="de-fred2db",

@@ -1,4 +1,5 @@
 def fetch_fred(templates_dict, **context):
+    """Fetch FRED data using FRED API library."""
     import logging
     import os
     import random
