@@ -97,7 +97,7 @@ services:
       - .env
 
   mongodb:
-    hostname: mongoservice
+    hostname: ${MONGODB_HOST:-mongoservise}
     container_name: mongodb
     image: mongo:4.4.15
     restart: always

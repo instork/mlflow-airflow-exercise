@@ -89,14 +89,14 @@ services:
   airflow-scheduler:
     <<: *airflow-common
     build:
-      context: ./docker/airflow-scheduler-local
+      context: ./docker/airflow-scheduler
     image: instork/airflow-scheduler
     command: scheduler
     restart: always
     env_file:
       - .env
     extra_hosts:
-      - 'mongoservice:172.17.0.1'
+      - '${MONGODB_HOST:-mongoservise}:172.17.0.1'
 
 # ========================================================
   s3:
