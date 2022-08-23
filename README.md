@@ -1,11 +1,14 @@
 # mlflow-airflow-exercise
 
+An implementation of continuous training and continuous model deployment using dockerized Airflow & MLflow. ARIMA & auto-ARIMA will be trained with BTC closing price everyday. Data validation, statistics, trained models will be logged on MLFlow. Model versions out of date will be deleted automatically.
+
+
+&nbsp;
 ## Sample Image
 
 <img src = "./img/sample_img4.png" width="90%">
 
-- more result images on:
-    - https://github.com/instork/mlflow-airflow-exercise/blob/main/result.md
+- [more images](https://github.com/instork/mlflow-airflow-exercise/blob/main/result.md)
 
 &nbsp;
 
@@ -13,19 +16,11 @@
 - Install docker
 - Install docker-compose
 - Create .env like below for docker compose
+    - Cloud or exteranl server: port-forwarding on 8080, 9000, 9001, 5000 ports is needed. Use `<Exertnal IP>` address below
+    - Local: localhost does not work. Use `<Internal IP>` like 192.x.x.x. How to find Internal IP address: https://www.avast.com/c-how-to-find-ip-address
     ```
-    # if you are running on a cloud or server
-    # port-forward on 8080, 9000, 9001, 5000 is needed 
-    MLFLOW_S3_ENDPOINT_URL=http://<External IP>:9000
-    MLFLOW_TRACKING_URI=http://<External IP>:5000
-
-    # if you are running on local server
-    # localhost doesn't work. Use internal IP like 192.x.x.x.
-    # How to find internal IP: https://www.avast.com/c-how-to-find-ip-address
-
-    MLFLOW_S3_ENDPOINT_URL=http://<Internal IP>:9000
-    MLFLOW_TRACKING_URI=http://<Internal IP>:5000
-
+    MLFLOW_S3_ENDPOINT_URL=http://<EXTERNAL/INTERNAL IP>:9000
+    MLFLOW_TRACKING_URI=http://<EXTERNAL/INTERNAL IP>:5000
 
     _AIRFLOW_WWW_USER_USERNAME=airlfow
     _AIRFLOW_WWW_USER_PASSWORD=airlfow
@@ -67,8 +62,10 @@
 
 - remove data
     ```bash
-    $ docker-compose down
-    $ docker-compose down --volumes --remove-orphans
+    # clean up airflow & mlflow data without MongoDB(BTC, ETH, googleNews, FRED)data)
+    $ make clean_up
+    # clean up all data 
+    $ make clean_up_all
     ```
 
 - To get OHLCV of BTC run `de-upbit2db` DAG
