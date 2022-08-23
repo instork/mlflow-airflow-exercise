@@ -45,7 +45,8 @@ def get_data_save_csv(db_name: str, coin_name: str, day_before: int, **kwargs) -
         folder, f"{db_name}_{coin_name}_{cur_time}_{day_before}.csv"
     )
     df = df.loc[:, df.columns != "_id"]
-
+    df = df.drop_duplicates(subset=["utc_time"], keep="last")
+    df = df.sort_values("utc_time")
     df.to_csv(file_loc, index=False)
 
     return file_loc
